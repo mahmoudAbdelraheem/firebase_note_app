@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "618868760736",
+    "project_id": "flutter-fire-course-65987",
+    "storage_bucket": "flutter-fire-course-65987.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:618868760736:android:2786be8a4522ffd7e469c5",
+        "android_client_info": {
+          "package_name": "com.example.flutter_fire"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCETTN5HXzEmW6Ft9ODEmSiQmErMjCqF9Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
