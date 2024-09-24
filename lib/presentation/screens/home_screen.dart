@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Your Notes'),
         actions: [
           IconButton(
             onPressed: () async {
@@ -87,6 +87,13 @@ class _HomeScreenState extends State<HomeScreen> {
             itemCount: state.categories.length,
             itemBuilder: (_, index) {
               return InkWell(
+                onTap: () {
+                  Navigator.pushNamed(context, AppConstants.notesScreen,
+                      arguments: {
+                        "category": state.categories[index]['name'],
+                        "id": state.categories[index].id
+                      });
+                },
                 onLongPress: () {
                   AwesomeDialog(
                     context: context,

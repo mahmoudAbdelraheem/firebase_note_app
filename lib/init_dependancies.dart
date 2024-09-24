@@ -3,6 +3,7 @@ import 'package:flutter_fire/data/datasources/auth/firebase_user_auth.dart';
 import 'package:flutter_fire/firebase_options.dart';
 import 'package:flutter_fire/logic/auth/auth_bloc.dart';
 import 'package:flutter_fire/logic/home/home_bloc.dart';
+import 'package:flutter_fire/logic/note/note_bloc.dart';
 import 'package:flutter_fire/repositories/auth/user_auth_repository.dart';
 import 'package:get_it/get_it.dart';
 
@@ -14,6 +15,7 @@ Future<void> initDependancies() async {
   );
   _initAuth();
   _initHome();
+  _initNote();
 }
 
 void _initAuth() {
@@ -36,4 +38,7 @@ void _initAuth() {
 
 void _initHome(){
   sl.registerLazySingleton(()=>HomeBloc());
+}
+void _initNote(){
+  sl.registerFactory(()=>NoteBloc());
 }

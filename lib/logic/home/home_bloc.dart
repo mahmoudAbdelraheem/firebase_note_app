@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,8 +20,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   FutureOr<void> _addNewCategory(
       HomeAddCategoryEvent event, Emitter<HomeState> emit) async {
     try {
-      final CollectionReference categoryCollection =
-          FirebaseFirestore.instance.collection('categories');
+      final User currentUser = FirebaseAuth.instance.currentUser!;
+      final CollectionReference categoryCollection = FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('categories');
       await categoryCollection.add({"name": event.category});
       emit(HomeAddCategorySuccessState());
     } catch (e) {
@@ -33,11 +37,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     try {
-      final QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('categories').get();
+      final User currentUser = FirebaseAuth.instance.currentUser!;
+
+      final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('categories')
+          .get();
       emit(
-        HomeGetDataSuccessState(
-          categories: querySnapshot.docs),
+        HomeGetDataSuccessState(categories: querySnapshot.docs),
       );
     } catch (e) {
       emit(HomeErrorState(message: e.toString()));
@@ -47,7 +55,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   FutureOr<void> _deleteCategory(
     HomeDeleteCategoryEvent event,
     Emitter<HomeState> emit,
-  ) async{
+  ) async {
     try {
       await FirebaseFirestore.instance
           .collection('categories')
