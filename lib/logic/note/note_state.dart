@@ -5,7 +5,8 @@ sealed class NoteState {}
 
 final class NoteInitialState extends NoteState {}
 final class NoteLoadingState extends NoteState {}
-final class NoteAddedSuccessState extends NoteState {}
+final class NoteAddedOrUpdatedSuccessState extends NoteState {}
+final class NoteDeletedSuccessState extends NoteState {}
 
 final class NoteErrorState extends NoteState {
   final String message;

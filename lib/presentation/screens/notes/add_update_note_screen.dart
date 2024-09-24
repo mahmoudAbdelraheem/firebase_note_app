@@ -98,7 +98,8 @@ class _AddUpdateNoteScreenState extends State<AddUpdateNoteScreen> {
                 return;
               }
               BlocProvider.of<NoteBloc>(context).add(
-                NoteAddNewNoteEvent(
+                NoteAddOrUpdateNoteEvent(
+                  id: widget.note.id!,
                   categoryId: widget.categoryId,
                   title: _titleController.text,
                   body: _noteController.text,
@@ -111,12 +112,15 @@ class _AddUpdateNoteScreenState extends State<AddUpdateNoteScreen> {
       ),
       body: BlocListener<NoteBloc, NoteState>(
         listener: (context, state) {
-          if (state is NoteAddedSuccessState) {
-            BlocProvider.of<NoteBloc>(context).add(
-              NoteGetAllNotesEvent(categoryId: widget.categoryId),
+          if (state is NoteAddedOrUpdatedSuccessState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content:
+                    Text('Note saved successfully, refresh to see changes'),
+              ),
             );
-          } else if (state is NoteGetAllNotesSuccessState) {
-            Navigator.of(context).pop();
+
+            Navigator.pop(context);
           } else if (state is NoteErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),

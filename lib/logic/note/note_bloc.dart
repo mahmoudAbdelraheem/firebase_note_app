@@ -15,12 +15,33 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
 
   NoteBloc() : super(NoteInitialState()) {
     on<NoteEvent>((event, emit) => emit(NoteLoadingState()));
-    on<NoteAddNewNoteEvent>(_addNewNote);
+    on<NoteAddOrUpdateNoteEvent>(_addOrUpdateNote);
     on<NoteGetAllNotesEvent>(_getAllNotes);
+    on<NoteDeleteNoteEvent>(_deleteNote);
   }
 
-  FutureOr<void> _addNewNote(
-    NoteAddNewNoteEvent event,
+  FutureOr<void> _deleteNote(
+    NoteDeleteNoteEvent event,
+    Emitter<NoteState> emit,
+  ) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(_firebaseAuth.currentUser!.uid)
+          .collection('categories')
+          .doc(event.categoryId)
+          .collection('notes')
+          .doc(event.noteId)
+          .delete();
+      emit(NoteDeletedSuccessState());
+      add(NoteGetAllNotesEvent(categoryId: event.categoryId));
+    } catch (e) {
+      emit(NoteErrorState(message: e.toString()));
+    }
+  }
+
+  FutureOr<void> _addOrUpdateNote(
+    NoteAddOrUpdateNoteEvent event,
     Emitter<NoteState> emit,
   ) async {
     try {
@@ -31,14 +52,27 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
           .doc(event.categoryId)
           .collection('notes');
 
-      await noteCollection.add({
-        'title': event.title,
-        'body': event.body,
-        'color':
-            '#${event.color.value.toRadixString(16).padLeft(8, '0')}', // Storing color as hex
-        'date': DateTime.now(),
-      });
-      emit(NoteAddedSuccessState());
+      if (event.id == '') {
+        // Add new note
+        await noteCollection.add({
+          'title': event.title,
+          'body': event.body,
+          'color':
+              '#${event.color.value.toRadixString(16).padLeft(8, '0')}', // Storing color as hex
+          'date': DateTime.now(),
+        });
+      } else {
+        // Update existing note
+        await noteCollection.doc(event.id).set({
+          'title': event.title,
+          'body': event.body,
+          'color':
+              '#${event.color.value.toRadixString(16).padLeft(8, '0')}', // Storing color as hex
+          'date': DateTime.now(),
+        }, SetOptions(merge: true)); // Merge updates with existing document
+      }
+
+      emit(NoteAddedOrUpdatedSuccessState());
     } catch (e) {
       emit(NoteErrorState(message: e.toString()));
     }
@@ -74,7 +108,6 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
             ),
           )
           .toList();
-          
       emit(
         NoteGetAllNotesSuccessState(notes: notesData),
       );

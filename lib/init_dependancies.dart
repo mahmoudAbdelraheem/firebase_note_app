@@ -36,9 +36,10 @@ void _initAuth() {
   );
 }
 
-void _initHome(){
-  sl.registerLazySingleton(()=>HomeBloc());
+void _initHome() {
+  sl.registerLazySingleton(() => HomeBloc());
 }
-void _initNote(){
-  sl.registerFactory(()=>NoteBloc());
+
+void _initNote() {
+  sl.registerFactory(() => NoteBloc());
 }

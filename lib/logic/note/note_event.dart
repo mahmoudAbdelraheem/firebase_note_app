@@ -3,12 +3,14 @@ part of 'note_bloc.dart';
 @immutable
 sealed class NoteEvent {}
 
-class NoteAddNewNoteEvent extends NoteEvent {
+class NoteAddOrUpdateNoteEvent extends NoteEvent {
   final String categoryId;
+  final String id;
   final String title;
   final String body;
   final Color color;
-  NoteAddNewNoteEvent({
+  NoteAddOrUpdateNoteEvent({
+    this.id = '',
     required this.categoryId,
     required this.title,
     required this.body,
@@ -18,7 +20,8 @@ class NoteAddNewNoteEvent extends NoteEvent {
 
 class NoteDeleteNoteEvent extends NoteEvent {
   final String noteId;
-  NoteDeleteNoteEvent({required this.noteId});
+  final String categoryId;
+  NoteDeleteNoteEvent({required this.noteId, required this.categoryId});
 }
 
 class NoteUpdateNoteEvent extends NoteEvent {

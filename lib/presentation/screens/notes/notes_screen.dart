@@ -31,6 +31,7 @@ class _NotesScreenState extends State<NotesScreen> {
           Navigator.pushNamed(context, AppConstants.addUpdateNoteScreen,
               arguments: {
                 "note": NoteModel(
+                  id: '',
                   title: '',
                   body: '',
                   color: Colors.white,
@@ -54,23 +55,30 @@ class _NotesScreenState extends State<NotesScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),
               );
-            } else if (state is NoteAddedSuccessState) {
-              BlocProvider.of<NoteBloc>(context).add(
-                NoteGetAllNotesEvent(
-                  categoryId: widget.categoryId,
-                ),
+            } else if (state is NoteDeletedSuccessState) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Note Deleted Successfully')),
               );
             }
           },
           builder: (context, state) {
             if (state is NoteGetAllNotesSuccessState) {
               if (state.notes.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No Notes Found',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                return GestureDetector(
+                  onTap: () {
+                    BlocProvider.of<NoteBloc>(context).add(
+                      NoteGetAllNotesEvent(
+                        categoryId: widget.categoryId,
+                      ),
+                    );
+                  },
+                  child: const Center(
+                    child: Text(
+                      'No Notes Found',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 );
@@ -81,33 +89,60 @@ class _NotesScreenState extends State<NotesScreen> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      // TODO: Add update note screen
-                      // Navigator.pushNamed(context, AppConstants.addUpdateNoteScreen,
-                      //     arguments: {
-                      //       'categoryId': widget.categoryId,
-                      //       'note': NoteModel(title: '', body: '', color: Colors.white),
-                      //     });
-                    },
-                    child: FadeInRight(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Card(
-                          elevation: 5,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
+                      Navigator.pushNamed(
+                          context, AppConstants.addUpdateNoteScreen,
+                          arguments: {
+                            'categoryId': widget.categoryId,
+                            'note': NoteModel(
+                              id: state.notes[index].id,
+                              title: state.notes[index].title,
+                              body: state.notes[index].body,
+                              color: state.notes[index].color,
                             ),
+                          });
+                    },
+                    child: Dismissible(
+                      background: Container(
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        ),
+                      ),
+                      key: Key(state.notes[index].id!),
+                      onDismissed: (val) {
+                        BlocProvider.of<NoteBloc>(context).add(
+                          NoteDeleteNoteEvent(
+                            noteId: state.notes[index].id!,
+                            categoryId: widget.categoryId,
                           ),
-                          color: Color(state.notes[index].color.value),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListTile(
-                              title: Text(state.notes[index].title),
-                              subtitle: Text(
-                                state.notes[index].body,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(height: 1.4),
+                        );
+                      },
+                      child: FadeInRight(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Card(
+                            elevation: 5,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                            ),
+                            color: Color(state.notes[index].color.value),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ListTile(
+                                title: Text(state.notes[index].title),
+                                subtitle: Text(
+                                  state.notes[index].body,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(height: 1.4),
+                                ),
                               ),
                             ),
                           ),
