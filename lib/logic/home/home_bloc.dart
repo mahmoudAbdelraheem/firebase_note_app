@@ -58,6 +58,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     try {
       await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
           .collection('categories')
           .doc(event.categoryId)
           .delete();

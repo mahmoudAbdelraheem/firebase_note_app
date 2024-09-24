@@ -76,6 +76,17 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }, builder: (_, state) {
         if (state is HomeGetDataSuccessState) {
+          if (state.categories.isEmpty) {
+            return const Center(
+              child: Text(
+                'No categories found yet!',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          }
           return GridView.builder(
             padding: const EdgeInsets.all(15),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

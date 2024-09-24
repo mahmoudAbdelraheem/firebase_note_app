@@ -5,6 +5,7 @@ import 'package:flutter_fire/logic/auth/auth_bloc.dart';
 import 'package:flutter_fire/logic/home/home_bloc.dart';
 import 'package:flutter_fire/logic/note/note_bloc.dart';
 import 'package:flutter_fire/repositories/auth/user_auth_repository.dart';
+import 'package:flutter_fire/repositories/notes/notes_repository.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;
@@ -41,5 +42,8 @@ void _initHome() {
 }
 
 void _initNote() {
-  sl.registerFactory(() => NoteBloc());
+  sl.registerLazySingleton<NoteRepository>(() => NoteRepositoryImpl());
+  sl.registerFactory(() => NoteBloc(
+        noteRepository: sl(),
+      ));
 }

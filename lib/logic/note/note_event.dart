@@ -41,3 +41,10 @@ class NoteGetAllNotesEvent extends NoteEvent {
   final String categoryId;
   NoteGetAllNotesEvent({required this.categoryId});
 }
+
+
+class NoteListenToNotesStreamEvent extends NoteEvent {
+  final String categoryId;
+
+  NoteListenToNotesStreamEvent({required this.categoryId});
+}
