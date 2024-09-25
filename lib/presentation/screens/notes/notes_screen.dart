@@ -1,10 +1,10 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_fire/core/app_constants.dart';
 import 'package:flutter_fire/core/widgets/loader.dart';
 import 'package:flutter_fire/data/models/note_model.dart';
 import 'package:flutter_fire/logic/note/note_bloc.dart';
+import 'package:flutter_fire/presentation/widgets/notes/note_card_widget.dart';
 
 class NotesScreen extends StatefulWidget {
   final String categoryName;
@@ -35,6 +35,7 @@ class _NotesScreenState extends State<NotesScreen> {
                   title: '',
                   body: '',
                   color: Colors.white,
+                  imageUrl: '',
                 ),
                 "categoryId": widget.categoryId,
               });
@@ -87,7 +88,8 @@ class _NotesScreenState extends State<NotesScreen> {
                 padding: const EdgeInsets.all(15),
                 itemCount: state.notes.length,
                 itemBuilder: (context, index) {
-                  return GestureDetector(
+                  return NoteCardWidget(
+                    note: state.notes[index],
                     onTap: () {
                       Navigator.pushNamed(
                           context, AppConstants.addUpdateNoteScreen,
@@ -98,64 +100,43 @@ class _NotesScreenState extends State<NotesScreen> {
                               title: state.notes[index].title,
                               body: state.notes[index].body,
                               color: state.notes[index].color,
+                              imageUrl: state.notes[index].imageUrl ?? '',
                             ),
                           });
                     },
-                    child: Dismissible(
-                      background: Container(
-                        margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
+                    onDelete: (val) {
+                      BlocProvider.of<NoteBloc>(context).add(
+                        NoteDeleteNoteEvent(
+                          noteId: state.notes[index].id!,
+                          categoryId: widget.categoryId,
+                          imageUrl: state.notes[index].imageUrl ?? '',
                         ),
-                        child: const Icon(
-                          Icons.delete,
-                          color: Colors.white,
-                        ),
-                      ),
-                      key: Key(state.notes[index].id!),
-                      onDismissed: (val) {
-                        BlocProvider.of<NoteBloc>(context).add(
-                          NoteDeleteNoteEvent(
-                            noteId: state.notes[index].id!,
-                            categoryId: widget.categoryId,
-                          ),
-                        );
-                      },
-                      child: FadeInRight(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Card(
-                            elevation: 5,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
-                            color: Color(state.notes[index].color.value),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ListTile(
-                                title: Text(state.notes[index].title),
-                                subtitle: Text(
-                                  state.notes[index].body,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(height: 1.4),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   );
                 },
               );
             } else if (state is NoteLoadingState) {
               return const Loader();
             } else {
-              return Container();
+              return GestureDetector(
+                onTap: () {
+                  BlocProvider.of<NoteBloc>(context).add(
+                    NoteGetAllNotesEvent(
+                      categoryId: widget.categoryId,
+                    ),
+                  );
+                },
+                child: const Center(
+                  child: Text(
+                    'No Notes Found',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
             }
           },
         ),
@@ -163,4 +144,3 @@ class _NotesScreenState extends State<NotesScreen> {
     );
   }
 }
- 

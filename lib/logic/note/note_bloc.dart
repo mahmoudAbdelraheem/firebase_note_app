@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_fire/data/models/note_model.dart';
@@ -10,7 +9,7 @@ part 'note_state.dart';
 
 class NoteBloc extends Bloc<NoteEvent, NoteState> {
   final NoteRepository noteRepository;
-   StreamSubscription<List<NoteModel>>? _noteStreamSubscription;
+  StreamSubscription<List<NoteModel>>? _noteStreamSubscription;
 
   NoteBloc({required this.noteRepository}) : super(NoteInitialState()) {
     on<NoteEvent>((event, emit) => emit(NoteLoadingState()));
@@ -23,15 +22,20 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
   FutureOr<void> _deleteNote(
     NoteDeleteNoteEvent event,
     Emitter<NoteState> emit,
-  )async {
+  ) async {
     try {
-      await noteRepository.deleteNote(event.categoryId, event.noteId);
+      await noteRepository.deleteNote(
+        event.categoryId,
+        event.noteId,
+        event.imageUrl,
+      );
       emit(NoteDeletedSuccessState());
-      // add(NoteGetAllNotesEvent(categoryId: event.categoryId));
+      add(NoteGetAllNotesEvent(categoryId: event.categoryId));
     } catch (e) {
       emit(NoteErrorState(message: e.toString()));
     }
   }
+
   FutureOr<void> _addOrUpdateNote(
     NoteAddOrUpdateNoteEvent event,
     Emitter<NoteState> emit,
@@ -42,6 +46,7 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
         title: event.title,
         body: event.body,
         color: event.color,
+        imageUrl: event.imageUrl,
       );
       await noteRepository.addOrUpdateNote(event.categoryId, note);
 
@@ -51,9 +56,11 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     }
   }
 
-   FutureOr<void> _listenToNotesStream(
-      NoteListenToNotesStreamEvent event, Emitter<NoteState> emit,) async{
-     // Cancel any existing subscription before starting a new one
+  FutureOr<void> _listenToNotesStream(
+    NoteListenToNotesStreamEvent event,
+    Emitter<NoteState> emit,
+  ) async {
+    // Cancel any existing subscription before starting a new one
     await _noteStreamSubscription?.cancel();
 
     _noteStreamSubscription =
@@ -74,19 +81,15 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     return super.close();
   }
 
-
-
   FutureOr<void> _getAllNotes(
     NoteGetAllNotesEvent event,
     Emitter<NoteState> emit,
   ) async {
-
-     try {
+    try {
       final notes = await noteRepository.getAllNotes(event.categoryId);
       emit(NoteGetAllNotesSuccessState(notes: notes));
     } catch (e) {
       emit(NoteErrorState(message: e.toString()));
     }
   }
-
 }
